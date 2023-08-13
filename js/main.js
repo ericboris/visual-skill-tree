@@ -51,11 +51,12 @@ function createSVG(parentSelector, width, height) {
  * Renders the nodes on the SVG and handles click interactions.
  * @param {Object} svg - The D3 SVG selection.
  * @param {Array} skills - The array of skills data.
+ * @param {Array} links - The array of links between skills.
  * @param {Object} colorScale - The D3 color scale.
  * @param {Object} simulation - The D3 force simulation.
  * @returns {Object} - The D3 node selection.
  */
-function renderNodes(svg, skills, colorScale, simulation) {
+function renderNodes(svg, skills, links, colorScale, simulation) {
   return svg.append("g")
     .selectAll("circle")
     .data(skills)
@@ -71,12 +72,17 @@ function renderNodes(svg, skills, colorScale, simulation) {
         d3.select(this).attr("fill", getNodeColor(d, colorScale));
 
         // Set all nodes branching from the clicked node to "in-progress"
-        skills.forEach(skill => {
-          if (skill.relatedSkills.includes(d.id) && skill.status === "locked") {
-            skill.status = "in-progress";
-            d3.select("#label-" + skill.id).attr("visibility", "visible"); // Show label
+        links.forEach(link => {
+          if (link.source === d) {
+            let targetNode = link.target; // Directly get the target node
+            if (targetNode.status === "locked") {
+              targetNode.status = "in-progress";
+              d3.select("#label-" + targetNode.id).attr("visibility", "visible"); // Show label
+            }
           }
         });
+        // Redraw nodes to reflect new statuses
+        svg.selectAll("circle").attr("fill", d => getNodeColor(d, colorScale));
       }
     })
     .call(drag(simulation));
@@ -211,7 +217,7 @@ function renderSkillTree(parentSelector, skillsData, width, height) {
   const svg = createSVG(parentSelector, width, height);
   const colorScale = createColorScale();
   const link = renderLinks(svg, links);
-  const node = renderNodes(svg, skills, colorScale, simulation);
+  const node = renderNodes(svg, skills, links, colorScale, simulation);
   const label = renderLabels(svg, skills);
   handleTick(simulation, link, node, label);
 }
