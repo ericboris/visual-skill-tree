@@ -6,11 +6,11 @@ const links = skills.flatMap(d =>
 );
 
 const simulation = d3.forceSimulation(skills)
-  .force("link", d3.forceLink(links).id(d => d.id).distance(80))
-  .force("charge", d3.forceManyBody().strength(-400))
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collide", d3.forceCollide(30)) // 30 is slightly more than the node diameter to prevent overlap
-  .force("radial", d3.forceRadial(30, width / 2, height / 2));
+  .force("link", d3.forceLink(links).id(d => d.id).distance(50))
+  .force("charge", d3.forceManyBody().strength(-300))
+  .force("collide", d3.forceCollide(35)) // 30 is slightly more than the node diameter to prevent overlap
+  .force("radial", d3.forceRadial(100, width / 2, height / 2));
 
 const colorScale = d3.scaleOrdinal()
   .domain(["Central", "Category 1", "Category 2", "Category 3", "Category 4", "Category 5", "Category 6"])
@@ -21,20 +21,22 @@ const svg = d3.select("body")
   .attr("width", width)
   .attr("height", height);
 
-const node = svg.append("g")
-  .selectAll("circle")
-  .data(skills)
-  .join("circle")
-  .attr("r", 20)
-  .attr("fill", d => colorScale(d.category))
-  .call(drag(simulation));
-
 const link = svg.append("g")
   .selectAll("line")
   .data(links)
   .join("line")
-  .attr("stroke", "#999")
-  .attr("stroke-opacity", 0.6);
+  .attr("stroke", "#400")
+  .attr("stroke-opacity", 1);
+
+const node = svg.append("g")
+  .selectAll("circle")
+  .data(skills)
+  .join("circle")
+  .attr("r", 30)
+  .attr("fill", d => colorScale(d.category))
+  .attr("stroke", "#400")
+  .attr("stroke-width", 1.5)
+  .call(drag(simulation));
 
 const labels = svg.append("g")
   .selectAll("text")
