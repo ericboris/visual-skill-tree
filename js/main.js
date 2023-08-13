@@ -194,13 +194,18 @@ function getNodeColor(skill, colorScale) {
 }
 
 /**
- * Creates and returns a color scale.
+ * Creates and returns a color scale based on the number of unique categories.
+ * @param {Array} skills - The array of skills data.
  * @returns {Object} - The D3 color scale.
  */
-function createColorScale() {
+function createColorScale(skills) {
+  const categories = [...new Set(skills.map(skill => skill.category))];
+  const hues = categories.map((_, i) => (i * 360) / categories.length);
+  const colors = hues.map(h => `hsl(${h}, 80%, 80%)`);  // 100% saturation and 50% lightness for bright colors
+
   return d3.scaleOrdinal()
-    .domain(["Central", "Category 1", "Category 2", "Category 3", "Category 4", "Category 5", "Category 6"])
-    .range(["#FFD700", "#FF5733", "#33FF57", "#337AFF", "#FF33A1", "#FFAA33", "#33FFA9"]);
+    .domain(categories)
+    .range(colors);
 }
 
 /**
@@ -215,7 +220,7 @@ function renderSkillTree(parentSelector, skillsData, width, height) {
   const links = skills.flatMap(d => d.relatedSkills.map(target => ({ source: d.id, target })));
   const simulation = createSimulation(skills, links, width, height);
   const svg = createSVG(parentSelector, width, height);
-  const colorScale = createColorScale();
+  const colorScale = createColorScale(skills);
   const link = renderLinks(svg, links);
   const node = renderNodes(svg, skills, links, colorScale, simulation);
   const label = renderLabels(svg, skills);
