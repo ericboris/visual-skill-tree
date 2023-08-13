@@ -36,10 +36,10 @@ const skills = [
 
   // Category 5: Two primary branches
   { id: 23, name: "Skill 5.1", category: "Category 5", relatedSkills: [24] },
-  { id: 24, name: "Skill 5.2", category: "Category 5", relatedSkills: [25, 27] },
+  { id: 24, name: "Skill 5.2", category: "Category 5", relatedSkills: [25, 26] },
   { id: 25, name: "Skill 5.3", category: "Category 5", relatedSkills: [] },
-  { id: 26, name: "Skill 5.4", category: "Category 5", relatedSkills: [27] },
-  { id: 27, name: "Skill 5.5", category: "Category 5", relatedSkills: [28] },
+  { id: 26, name: "Skill 5.4", category: "Category 5", relatedSkills: [27, 28] },
+  { id: 27, name: "Skill 5.5", category: "Category 5", relatedSkills: [] },
   { id: 28, name: "Skill 5.6", category: "Category 5", relatedSkills: [] },
 
   // Category 6: One linear branch followed by a branching node
