@@ -1,3 +1,4 @@
+// Initialize the status of each skill
 const width = 1400;
 const height = 820;
 
@@ -28,20 +29,66 @@ const link = svg.append("g")
   .attr("stroke", "#400")
   .attr("stroke-opacity", 1);
 
+// Initialize the status of each skill
+skills.forEach(skill => {
+  if (skill.id === 1) {
+    skill.status = "completed";
+  } else if (skill.relatedSkills.includes(1) || skills[0].relatedSkills.includes(skill.id)) {
+    skill.status = "in-progress";
+  } else {
+    skill.status = "locked";
+  }
+});
+
+// Define the node color based on its status
+function getNodeColor(d) {
+  switch (d.status) {
+    case "completed":
+      return colorScale(d.category);
+    case "in-progress":
+      return d3.color(colorScale(d.category)).darker(1);  // Desaturated color
+    case "locked":
+    default:
+      return "#C0C0C0";  // Gray
+  }
+}
+
 const node = svg.append("g")
   .selectAll("circle")
   .data(skills)
   .join("circle")
   .attr("r", 30)
-  .attr("fill", d => colorScale(d.category))
+  .attr("fill", getNodeColor)
   .attr("stroke", "#400")
   .attr("stroke-width", 1.5)
+  .on("click", function(event, d) {
+    // Only act on "in-progress" nodes
+    if (d.status === "in-progress") {
+      d.status = "completed";
+      d3.select(this).attr("fill", getNodeColor(d));
+
+      // Set all nodes branching from the clicked node to "in-progress"
+      links.forEach(link => {
+        if (link.source.id === d.id) {
+          let targetNode = skills.find(s => s.id === link.target.id);
+          if (targetNode.status === "locked") {
+            targetNode.status = "in-progress";
+            d3.select("#label-" + targetNode.id).attr("visibility", "visible"); // Show label
+          }
+        }
+      });
+      // Redraw nodes to reflect new statuses
+      node.attr("fill", getNodeColor);
+    }
+  })
   .call(drag(simulation));
 
 const labels = svg.append("g")
   .selectAll("text")
   .data(skills)
   .join("text")
+  .attr("id", d => "label-" + d.id)
+  .attr("visibility", d => (d.status === "locked" ? "hidden" : "visible"))
   .text(d => d.name);
 
 simulation.on("tick", () => {
